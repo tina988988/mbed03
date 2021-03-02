@@ -1,21 +1,24 @@
 #include "mbed.h"
 
-// Initialize a pins to perform analog and digital output functions
-// Adjust analog output pin name to your board spec.
-AnalogOut  aout(PA_4);
-DigitalOut dout(LED1);
+const double pi = 3.141592653589793238462;
+const double amplitude = 0.5f;
+const double offset = 65535 / 2;
 
-int main(void)
+// The sinewave is created on this pin
+// Adjust analog output pin name to your board spec.
+AnalogOut aout(PA_4);
+
+int main()
 {
+   double rads = 0.0;
+   uint16_t sample = 0;
+
    while (1) {
-      // change the voltage on the digital output pin by 0.1 * VCC
-      //  and print what the measured voltage should be (assuming VCC = 3.3v)
-      for (float i = 0.0f; i < 1.0f; i += 0.1f) {
-            aout = i;
-            printf("aout = %f volts\n", aout.read() * 3.3f);
-            // turn on the led if the voltage is greater than 0.5f * VCC
-            dout = (aout > 0.5f) ? 1 : 0;
-            ThisThread::sleep_for(1s);
+      // sinewave output
+      for (int i = 0; i < 360; i++) {
+            rads = (pi * i) / 180.0f;
+            sample = (uint16_t)(amplitude * (offset * (cos(rads + pi))) + offset);
+            aout.write_u16(sample);
       }
    }
 }
